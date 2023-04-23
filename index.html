@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <title>Hernandez_Flores_Juan_Pablo</title>
+        <script>
+        </script>
+    </head>
+    
+    <body>
+        <script type="module">
+            import * as THREE from './JS/three.module.js';
+            import { OrbitControls } from './JS/OrbitControls.js';
+            import { GLTFLoader } from './JS/GLTFLoader.js';
+            import { GUI } from './JS/lil-gui.module.min.js';
+
+            
+        //Crear scene/Definir Fondo
+        var scene = new THREE.Scene(); //Crear scene
+        var CTexturaFondo = new THREE.TextureLoader(); //Creamos Cargador
+        CTexturaFondo.crossOrigin = "Anonymous";
+        CTexturaFondo.load('./Recursos/Scifi.jpg', function (TexturaFondo) { //Cargamos Textura
+            scene.background = TexturaFondo; //Definimos Textura
+        });
+
+        //Crear camara
+        var Camara = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight);
+         Camara.position.set(0,-100,0);
+       
+        //Crear Render
+        var Render = new THREE.WebGLRenderer();
+            Render.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(Render.domElement);
+            Render.setPixelRatio(window.devicePixelRatio);
+            Render.shadowMap.enabled = true //Permite Sombras
+
+        //Controles Camara
+        var controles = new OrbitControls(Camara, Render.domElement);
+            controles.minDistance = 5;
+            controles.maxDistance = 300;
+
+        //Aleatorio
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);}
+        var cancionAleatoria = getRandomInt(4);
+            switch(cancionAleatoria) {
+            case 0:
+                var camino = './Recursos/Connect.mp3';
+                var colores =0xff07d6;
+                break;
+            case 1:
+                var camino = './Recursos/Derezzed.mp3';
+                var colores =0x074fcd;
+                break;
+            case 2:
+                var camino = './Recursos/RunningAway.mp3';
+                var colores =0x4ded0c;
+                break;
+            case 3:
+                var camino = './Recursos/OneLastKiss.mp3';
+                var colores =0x7b00fe;
+                break;   
+            default:
+            console.log('error');}
+
+ 
+        //Añade Musica
+        const listener = new THREE.AudioListener();
+        Camara.add( listener );
+        const musica = new THREE.PositionalAudio( listener );
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load( camino, function( buffer ) {
+        musica.setBuffer( buffer );
+	    musica.setLoop( true );
+	    musica.setVolume( 1 ); 
+        musica.setRefDistance(30);
+        });
+        const analyser = new THREE.AudioAnalyser( musica, 32 );
+
+        //Botones
+	    const gui = new GUI();
+        const audioControls = {
+            play: function() {
+                musica.play();
+            },
+            pause: function() {
+            musica.pause();
+            }
+        };
+        gui.add(audioControls, 'play');
+        gui.add(audioControls, 'pause');
+
+        //Crear Luz
+        const luz = new THREE.PointLight(colores,10,150);
+        luz.position.x=0;
+        luz.position.y=0;
+        luz.position.z=0;
+        scene.add(luz);
+
+        //BOX
+        var BOXX=0;
+        var BOXY=-10;
+        var BOXZ=-2;
+        let loadedModel;
+        const glftLoader = new GLTFLoader();
+        glftLoader.load('./Recursos/Box.glb', (BOX) => {
+            /*while(gltfScene.scene.children.length){ //Muestra todas las funciones del Objeto
+                console.log(gltfScene.scene.children[0]);
+                scene.add(gltfScene.scene.children[0]);
+            }*/
+        loadedModel = BOX;
+        BOX.scene.rotation.x = Math.PI*4.5;
+        BOX.scene.position.x = BOXX;
+        BOX.scene.position.y = BOXY;
+        BOX.scene.position.z = BOXZ;
+        BOX.scene.scale.set(5, 5, 5);
+        scene.add(BOX.scene);
+        });
+        const luzBOX = new THREE.PointLight(colores,8,30);//Luz para iluminar al UFO
+        scene.add(luzBOX);
+        luzBOX.position.x= BOXX;
+        luzBOX.position.y= BOXY-20;
+        luzBOX.position.z= BOXZ;
+
+        //Speaker1
+        var Speaker1X=-40;
+        var Speaker1Y=0;
+        var Speaker1Z=-3;
+        let loadedModel1;
+        const glftLoader1 = new GLTFLoader();
+        glftLoader1.load('./Recursos/Speaker.glb', (Speaker1) => {
+        loadedModel1 = Speaker1;
+        Speaker1.scene.rotation.x = Math.PI*4.5;
+        Speaker1.scene.position.x = Speaker1X;
+        Speaker1.scene.position.y = Speaker1Y;
+        Speaker1.scene.position.z = Speaker1Z;
+        Speaker1.scene.scale.set(19, 19, 19);
+        scene.add(Speaker1.scene);
+        });
+        const luzSpeaker1 = new THREE.PointLight(colores,10,70);//Luz para iluminar al Speaker 1
+        scene.add(luzSpeaker1);
+        luzSpeaker1.position.x= Speaker1X;
+        luzSpeaker1.position.y= Speaker1Y-30;
+        luzSpeaker1.position.z= Speaker1Z+60;
+
+        //Speaker2
+        var Speaker2X=+40;
+        var Speaker2Y=0;
+        var Speaker2Z=-3;
+        let loadedModel2;
+        const glftLoader2 = new GLTFLoader();
+        glftLoader2.load('./Recursos/Speaker.glb', (Speaker2) => {
+        loadedModel2 = Speaker2;
+        Speaker2.scene.rotation.x = Math.PI*4.5;
+        Speaker2.scene.position.x = Speaker2X;
+        Speaker2.scene.position.y = Speaker2Y;
+        Speaker2.scene.position.z = Speaker2Z;
+        Speaker2.scene.scale.set(19, 19, 19);
+        scene.add(Speaker2.scene);
+        });
+        const luzSpeaker2 = new THREE.PointLight(colores,10,70);//Luz para iluminar al Speaker 2
+        scene.add(luzSpeaker2);
+        luzSpeaker2.position.x= Speaker2X;
+        luzSpeaker2.position.y= Speaker2Y-30;
+        luzSpeaker2.position.z= Speaker2Z+60;
+
+
+        //Codigo Aux
+        var aux = new THREE.Mesh( new THREE.SphereGeometry(.1),
+        new THREE.MeshBasicMaterial({color: colores}));
+        aux.position.x = -80; //-58/58
+        aux.position.y = -80; //1
+        aux.position.z = 10; //4/-25
+        scene.add(aux);
+
+        //Nave
+        let loadedModel3;
+        const glftLoader3 = new GLTFLoader();
+        glftLoader3.load('./Recursos/Nave.glb', (Nave) => {
+        loadedModel3 = Nave.scene;
+        Nave.scene.rotation.x = Math.PI*4.5;
+        Nave.scene.scale.set(1, 1, 1);
+        aux.add(loadedModel3);
+        });
+        const luzNave = new THREE.PointLight(colores,10,10);//Luz para iluminar la nave
+        scene.add(luzNave);
+        luzNave.position.x= aux.position.x;
+        luzNave.position.y= aux.position.y;
+        luzNave.position.z= aux.position.z+5;
+
+        //Codigo Centro
+        var centro = new THREE.Mesh( new THREE.BoxGeometry(5,5,5),
+            new THREE.MeshBasicMaterial({color: colores}));
+        centro.position.x = 0; //-58/58
+        centro.position.y = 0; //1
+        centro.position.z = 0; //4/-25
+        //scene.add(centro);
+        centro.add(musica);
+
+        //Codigo Piso
+        var Piso = new THREE.Mesh( new THREE.BoxGeometry(200,200,1),
+            new THREE.MeshStandardMaterial({color: 0x969aa1}));
+        Piso.position.x = 0;
+        Piso.position.y = 0;
+        Piso.position.z = -2;
+        scene.add(Piso);
+
+        //Codigo Pared
+        var Pared = new THREE.Mesh( new THREE.BoxGeometry(70,1,130),
+            new THREE.MeshBasicMaterial(
+                {map : new THREE.TextureLoader().load('Recursos/Lineas.png')}));
+        Pared.position.x = 0;
+        Pared.position.y = 1;
+        Pared.position.z = 0;
+        scene.add(Pared);
+        
+
+//Cubos Sector A
+const grupoCubos = new THREE.Group();
+        grupoCubos.position.x =0;
+        var TotalSectorA=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -30; EjeX <= -27; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeA_${TotalSectorA}`;
+                ++TotalSectorA;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector B
+        var TotalSectorB=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -26; EjeX <= -23; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeB_${TotalSectorB}`;
+                ++TotalSectorB;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector C
+        var TotalSectorC=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -22; EjeX <= -19; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeC_${TotalSectorC}`;
+                ++TotalSectorC;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector D
+        var TotalSectorD=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -18; EjeX <= -15; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeD_${TotalSectorD}`;
+                ++TotalSectorD;
+                grupoCubos.add(cubo);
+            }}
+              
+//Cubos Sector E
+        var TotalSectorE=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -14; EjeX <= -11; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeE_${TotalSectorE}`;
+                ++TotalSectorE;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector F
+        var TotalSectorF=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -10; EjeX <= -7; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeF_${TotalSectorF}`;
+                ++TotalSectorF;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector G
+        var TotalSectorG=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -6; EjeX <= -3; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeG_${TotalSectorG}`;
+                ++TotalSectorG;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector H
+        var TotalSectorH=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = -2; EjeX <= 1; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeH_${TotalSectorH}`;
+                ++TotalSectorH;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector I
+        var TotalSectorI=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 2; EjeX <= 5; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeI_${TotalSectorI}`;
+                ++TotalSectorI;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector J
+        var TotalSectorJ=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 6; EjeX <= 9; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeJ_${TotalSectorJ}`;
+                ++TotalSectorJ;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector K
+        var TotalSectorK=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 10; EjeX <= 13; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeK_${TotalSectorK}`;
+                ++TotalSectorK;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector L
+        var TotalSectorL=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 14; EjeX <= 17; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeL_${TotalSectorL}`;
+                ++TotalSectorL;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector M
+        var TotalSectorM=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 18; EjeX <= 21; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeM_${TotalSectorM}`;
+                ++TotalSectorM;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector N
+        var TotalSectorN=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 22; EjeX <= 25; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeN_${TotalSectorN}`;
+                ++TotalSectorN;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector O
+        var TotalSectorO=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 26; EjeX <= 29; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeO_${TotalSectorO}`;
+                ++TotalSectorO;
+                grupoCubos.add(cubo);
+            }}
+
+//Cubos Sector P
+        var TotalSectorP=0;
+        for ( let EjeZ = 0; EjeZ <=63 ; ++EjeZ) {//-32/-29
+            for (let EjeX = 30; EjeX <= 33; ++EjeX) { //-64/1
+                const cubo = new THREE.Mesh( new THREE.BoxGeometry(.5,.5,.5),
+                new THREE.MeshBasicMaterial({color: colores}));
+                cubo.position.set(EjeX,0,EjeZ);
+                cubo.castShadow = true;
+                cubo.receiveShadow = true;
+                cubo.name = `CubeP_${TotalSectorP}`;
+                ++TotalSectorP;
+                grupoCubos.add(cubo);
+            }}
+scene.add(grupoCubos);
+
+
+const currentPos = new THREE.Vector3(0, 0, 0);
+
+    var a=0;
+    var b=0;
+    var c=0;
+    var d=0;
+    var e=0;
+    var f=0;
+    var g=0;
+    var h=0;
+    var i=0;
+    var j=0;
+    var k=0;
+    var l=0;
+    var m=0;
+    var n=0;
+    var o=0;
+    var p=0;
+//var controladorData= [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p];
+    var v=0;
+
+//Curva Parametrica
+let curve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0,-80,10),
+  new THREE.Vector3(-80,0,10),
+  new THREE.Vector3(0,80,10),
+  new THREE.Vector3(80,0,10),
+  new THREE.Vector3(0,-80,10)
+]);
+let t = 0;
+        function Animacion(){//Animacion
+
+            //Movimiento de la Nave
+            var data = analyser.getAverageFrequency();
+            //console.log(data);
+            t += data/5000;
+            if (t > 1) {
+                 t = 0;
+            } 
+            aux.position.copy(curve.getPoint(t));
+             
+            var controladorData=analyser.getFrequencyData();
+           //Controlador A
+           a=controladorData[14];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<a){
+                    var auxCuboA = scene.getObjectByName(`CubeA_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeA_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador B
+           b=controladorData[12];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<b){
+                    var auxCuboA = scene.getObjectByName(`CubeB_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeB_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador C
+           c=controladorData[10];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<c){
+                    var auxCuboA = scene.getObjectByName(`CubeC_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeC_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador D
+           d=controladorData[8];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<d){
+                    var auxCuboA = scene.getObjectByName(`CubeD_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeD_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador E
+           e=controladorData[6];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<e){
+                    var auxCuboA = scene.getObjectByName(`CubeE_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeE_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador F
+           f=controladorData[4];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<f){
+                    var auxCuboA = scene.getObjectByName(`CubeF_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeF_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador G
+           g=controladorData[2];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<g){
+                    var auxCuboA = scene.getObjectByName(`CubeG_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeG_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador H
+           h=controladorData[0];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<h){
+                    var auxCuboA = scene.getObjectByName(`CubeH_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeH_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador I
+           i=controladorData[1];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<i){
+                    var auxCuboA = scene.getObjectByName(`CubeI_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeI_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador J
+           j=controladorData[3];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<j){
+                    var auxCuboA = scene.getObjectByName(`CubeJ_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeJ_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador K
+           k=controladorData[5];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<k){
+                    var auxCuboA = scene.getObjectByName(`CubeK_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeK_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador L
+           l=controladorData[7];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<l){
+                    var auxCuboA = scene.getObjectByName(`CubeL_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeL_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador M
+           m=controladorData[9];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<m){
+                    var auxCuboA = scene.getObjectByName(`CubeM_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeM_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador N
+           n=controladorData[11];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<n){
+                    var auxCuboA = scene.getObjectByName(`CubeN_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeN_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador O
+           o=controladorData[13];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<o){
+                    var auxCuboA = scene.getObjectByName(`CubeO_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeO_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+
+            //Controlador P
+           p=controladorData[15];
+           for (let v = 0; v <=255; ++v) { 
+                if(v<p){
+                    var auxCuboA = scene.getObjectByName(`CubeP_${v}`);
+                    auxCuboA.position.y=-1;
+                }else{
+                    var auxCuboA2 = scene.getObjectByName(`CubeP_${v}`);
+                    auxCuboA2.position.y=-1000;
+                }
+            }v=0;
+            
+            //console.log(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
+            requestAnimationFrame(Animacion);//Creamos el Frame
+            Render.render(scene,Camara);//Se crea Render
+        }
+        Animacion();
+        
+        </script>
+    </body>
+</html>
